@@ -6,6 +6,7 @@ function processFile(){
     var array = text.split("\r\n");
     var output =parseInt(array[0].split(",")[1],10);
     console.log(array);
+
     return array;
 }
 processFile();
