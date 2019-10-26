@@ -11,8 +11,8 @@ server.listen(port, '0.0.0.0', () => {
 });
 
 // List of ice cream events
-const events = [];
 
+const events =[];
 // Needed to process body parameters for POST requests
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -24,13 +24,15 @@ app.get('/', (req, res) => {
 // Inserting an ice cream
 app.post('/insertData', (req, res) => {
     const params = req.body;
-    events.push(params.event);
+
+    events.push([params.name, params.location]);
     res.redirect('/');
 });
 
 // Gets all the ice creams in the array
 app.get('/getData', (req, res) => {
     res.send(events.toString());
+
 });
 
 // TODO: Write a GET request to /count that checks iterates through
