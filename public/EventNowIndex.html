@@ -11,8 +11,12 @@
         <img src="testpic.jpg" alt="Picture" width="200" height="80">
         <form action="/insertData" method="POST">
             <p>Type Event to Add:</p>
-            <input type="text" name="event"/>
+            <input type="text" name="name"/>
+            <input type="text" name="location"/>
+            <input type ="datetime-local" name="starttime"/>
+            <input type ="datetime-local" name="endtime"/>
             <input type="submit" value="insert"/>
+
         </form>
 
         <form action="/count" method="GET">
