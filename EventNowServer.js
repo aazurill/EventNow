@@ -3,7 +3,7 @@ const http = require('http');
 const bodyParser = require('body-parser');
 const app = express();
 const server = http.createServer(app);
-
+var fs = require('fs');
 // Server will always find an open port.
 const port = process.env.PORT || 3001;
 server.listen(port, '0.0.0.0', () => {
@@ -12,8 +12,9 @@ server.listen(port, '0.0.0.0', () => {
 
 // List of events
 const events = [];
+jsonStr ='{"EventList":[]}'
 app.use(express.static(__dirname+"/public"));
-
+var obj = JSON.parse(jsonStr);
 // Needed to process body parameters for POST requests
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -25,7 +26,16 @@ app.get('/', (req, res) => {
 // Inserting an event
 app.post('/insertData', (req, res) => {
     const params = req.body;
-    events.push([params.name, params.location, params.starttime, params.endtime]);
+    var array = [params.name, params.location, params.starttime, params.endtime];
+    events.push(array);
+    obj['EventList'].push(array);
+
+  //  console.log(JSON.stringify(obj));
+    fs.writeFile("test.txt", JSON.stringify(obj), function(err) {
+    if (err) {
+        console.log(err);
+    }
+    });
     res.redirect('/');
 });
 
@@ -43,7 +53,7 @@ app.get('/count', (req, res) => {
     const event = req.query.event;
     let count = 0;
     for (let i = 0; i < events.length; i++) {
-        if (events[i] == event) {
+        if (events[i][0] == event) {
             count++;
         }
     }
@@ -54,7 +64,7 @@ app.get('/count', (req, res) => {
 //       event from our array to the response.
 app.get('/randomEvent', (req,res) => {
   const event = events[getRandomNumber()];
-    res.send(event);
+    res.send(event[0]);
 });
 
 // Method that gets a random index from the events array
