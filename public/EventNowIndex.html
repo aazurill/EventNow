@@ -8,16 +8,15 @@
     <body>
         <a href="/getData"> View All Events </a>
         <h1> Events List </h1>
+        <img src="testpic.jpg" alt="Picture" width="200" height="80">
         <form action="/insertData" method="POST">
-<<<<<<< HEAD
-            <p>Event to Add</p>
+            <p>Type Event to Add:</p>
             <input type="text" name="name"/>
             <input type="text" name="location"/>
-=======
-            <p>Type Event to Add:</p>
-            <input type="text" name="events"/>
->>>>>>> c3b26b9d43c58872f3781a8b5699b26b88f38d89
+            <input type ="datetime-local" name="starttime"/>
+            <input type ="datetime-local" name="endtime"/>
             <input type="submit" value="insert"/>
+
         </form>
 
         <form action="/count" method="GET">
