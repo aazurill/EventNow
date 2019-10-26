@@ -1,46 +1,50 @@
 import 'package:flutter/material.dart';
 
 class SearchBar extends StatelessWidget implements PreferredSizeWidget {
-  final double kToolbarHeight = 160;
+  final double kToolbarHeight = 72;
+  final String hint;
 
-  const SearchBar({Key key, @required String hint}) : super(key: key);
+  const SearchBar({Key key, @required this.hint}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      elevation: 2.0,
-      borderRadius: BorderRadius.circular(4.0),
+    return SafeArea(
       child: Container(
-        color: Colors.transparent,
+        height: kToolbarHeight,
         child: Padding(
-          padding: EdgeInsets.all(30),
-          child: Container(
-            color: Colors.red,
-            padding: EdgeInsets.all(5),
-            child: Row(children: [
-              IconButton(
-                icon: Icon(Icons.menu),
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                },
-              ),
-              Expanded(
-                child: Container(
-                  color: Colors.white,
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: "Search",
-                      contentPadding: EdgeInsets.all(10),
+          padding: EdgeInsets.all(8.0),
+          child: Card(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(4, 0, 0, 0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  IconButton(
+                    icon: Icon(
+                      Icons.menu,
+                    ),
+                    onPressed: () {
+                      Scaffold.of(context).openDrawer();
+                    },
+                  ),
+                  Container(
+                    width: 12.0,
+                  ),
+                  Expanded(
+                    child: TextField(
+                      style: TextStyle(
+                        fontSize: 20.0,
+                      ),
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: this.hint,
+                      )
                     ),
                   ),
-                ),
-              ),
-              IconButton(
-                icon: Icon(Icons.verified_user),
-                onPressed: () => null,
-              ),
-            ]),
-          ),
+                ],
+              )
+            )
+          )
         ),
       ),
     );

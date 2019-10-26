@@ -12,6 +12,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'EventNow',
+      theme: ThemeData(
+        primaryColor: Colors.pink[300],
+        accentColor: Colors.greenAccent[200],
+      ),
       home: Home()
     );
   }
@@ -26,17 +30,51 @@ class HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: SearchBar(
-        hint: "Yeet"
+      drawer: Drawer(
+        // Add a ListView to the drawer. This ensures the user can scroll
+        // through the options in the drawer if there isn't enough vertical
+        // space to fit everything.
+        child: ListView(
+          // Important: Remove any padding from the ListView.
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              child: Text('Anonymous user'),
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
+            ListTile(
+              title: Text('Item 1'),
+              onTap: () {
+                // Update the state of the app
+                // ...
+                // Then close the drawer
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: Text('Item 2'),
+              onTap: () {
+                // Update the state of the app
+                // ...
+                // Then close the drawer
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
       ),
       body: Stack(
         children: <Widget>[
           MapSample(),
+          SearchBar(
+              hint: "Find an event"
+          ),
         ],
       )
     );
   }
-
 }
 
 class MapSample extends StatefulWidget {
@@ -61,12 +99,17 @@ class MapSampleState extends State<MapSample> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      body: GoogleMap(
-        mapType: MapType.hybrid,
-        initialCameraPosition: _kGooglePlex,
-        onMapCreated: (GoogleMapController controller) {
-          _controller.complete(controller);
+      body: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).requestFocus(new FocusNode());
         },
+        child: GoogleMap(
+          mapType: MapType.hybrid,
+          initialCameraPosition: _kGooglePlex,
+          onMapCreated: (GoogleMapController controller) {
+            _controller.complete(controller);
+          },
+        )
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _goToTheLake,
