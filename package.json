@@ -1,0 +1,23 @@
+{
+  "name": "eventnow",
+  "version": "1.0.0",
+  "description": "Realtime pinging system for local events.",
+  "main": "EventNowServer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aazurill/EventNow.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aazurill/EventNow/issues"
+  },
+  "homepage": "https://github.com/aazurill/EventNow#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
