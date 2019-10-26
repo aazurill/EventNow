@@ -27,7 +27,9 @@ app.get('/', (req, res) => {
 app.post('/insertData', (req, res) => {
     const params = req.body;
     var local = params.location.split(" ");
-    var array = {"name": params.name, "lat": parseInt(local[0],10), "long": parseInt(local[1],10), "start": params.starttime, "end": params.endtime};
+
+    console.log(new Date(params.starttime).valueOf());
+    var array = {"name": params.name, "lat": parseFloat(local[0]), "long": parseFloat(local[1]), "start": new Date(params.starttime).valueOf(), "end": new Date(params.endtime).valueOf()};
     events.push(array);
     obj.push(array);
 
