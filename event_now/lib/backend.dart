@@ -22,8 +22,8 @@ class Data {
 
 class Event {
   final String name;
-  final int lat;
-  final int long;
+  final double lat;
+  final double long;
   final int startTime;
   final int endTime;
 
