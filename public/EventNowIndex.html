@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title> Add Your Events! </title>
+        <link type="text/css" rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <a href="/getData"> View All Events </a>
+        <h1> Events List </h1>
+        <form action="/insertData" method="POST">
+            <p>Event to Add</p>
+            <input type="text" name="name"/>
+            <input type="text" name="location"/>
+            <input type="submit" value="insert"/>
+        </form>
+
+        <form action="/count" method="GET">
+            <p>Find Out How Many Events Exist in the Database</p>
+            <input type="text" name="events" />
+            <input type="submit" value="search" />
+        </form>
+
+        <form action="/randomEvent" method="GET">
+            <p>Choose a random event</p>
+            <input type="submit" value="randomEvent"/>
+        </form>
+    </body>
+</html>
