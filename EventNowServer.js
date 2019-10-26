@@ -50,9 +50,7 @@ app.get('/getData', (req, res) => {
 //       exists to the response.
 //       Use req.query.event to grab the event parameter.
 app.get('/count', (req, res) => {
-
     const event = req.query.event;
-      console.log(event);
     let count = 0;
     for (let i = 0; i < events.length; i++) {
         if (events[i][0] == event) {
