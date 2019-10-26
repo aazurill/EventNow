@@ -12,6 +12,7 @@ server.listen(port, '0.0.0.0', () => {
 
 // List of ice cream events
 const events = [];
+app.use(express.static(__dirname+"/public"));
 
 // Needed to process body parameters for POST requests
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -50,8 +51,9 @@ app.get('/count', (req, res) => {
 
 // TODO: Write a GET request to /randomevent that sends a random
 //       event from our array to the response.
-app.get('randomevent', (req,res) => {
-    res.send(events[getRandomNumber()]);
+app.get('/randomEvent', (req,res) => {
+  const event = events[getRandomNumber()];
+    res.send(event);
 });
 
 // Method that gets a random index from the events array
