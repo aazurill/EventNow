@@ -5,12 +5,20 @@
         <title> Add Your Events! </title>
         <link type="text/css" rel="stylesheet" href="styles.css">
     </head>
+    <style>
+    body{
+        background-image: url("geisel.jpg");
+        height: 100%;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+    </style>
     <body>
         <a href="/getData"> View All Events </a>
         <h1> Events List </h1>
-        <img src="testpic.jpg" alt="Picture" width="200" height="80">
+        <img src="testpic.jpg" alt="Picture" width="200" height="200">
         <form action="/insertData" method="POST">
-            <p>Type Event to Add:</p>
+            <p>Type Event to Add: &nbsp;&nbsp; Location: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Start Time: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;End Time:</p>
             <input type="text" name="name"/>
             <input type="text" name="location"/>
             <input type ="datetime-local" name="starttime"/>
@@ -27,7 +35,7 @@
 
         <form action="/randomEvent" method="GET">
             <p>Choose a Random Event</p>
-            <input type="submit" value="randomEvent"/>
+            <input type="submit" value="Random Event"/>
         </form>
     </body>
 </html>
