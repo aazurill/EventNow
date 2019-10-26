@@ -12,7 +12,7 @@ server.listen(port, '0.0.0.0', () => {
 
 // List of events
 const events = [];
-jsonStr ='{"EventList":[]}'
+jsonStr ='[]';
 app.use(express.static(__dirname+"/public"));
 var obj = JSON.parse(jsonStr);
 // Needed to process body parameters for POST requests
@@ -26,12 +26,13 @@ app.get('/', (req, res) => {
 // Inserting an event
 app.post('/insertData', (req, res) => {
     const params = req.body;
-    var array = [params.name, params.location, params.starttime, params.endtime];
+    var local = params.location.split(" ");
+    var array = {"name": params.name, "lat": parseInt(local[0],10), "long": parseInt(local[1],10), "start": params.starttime, "end": params.endtime};
     events.push(array);
-    obj['EventList'].push(array);
+    obj.push(array);
 
   //  console.log(JSON.stringify(obj));
-    fs.writeFile("test.txt", JSON.stringify(obj), function(err) {
+    fs.writeFile("EventList.json", JSON.stringify(obj), function(err) {
     if (err) {
         console.log(err);
     }
