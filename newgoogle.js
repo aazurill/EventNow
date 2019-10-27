@@ -55,8 +55,8 @@ app.post('/insertData', (req, res) => {
       tempID = ClubID;
     }
 
-    var array = {"name": params.name, "group": params.group, "ClubID": ClubID, "lat": parseFloat(local[0]).toFixed(2),
-      "long": parseFloat(local[1]).toFixed(2),
+    var array = {"name": params.name, "group": params.group, "ClubID": ClubID, "lat": parseFloat(local[0]).toFixed(10),
+      "long": parseFloat(local[1]).toFixed(10),
       "start": new Date(params.starttime).valueOf(), "end": new Date(params.endtime).valueOf(),
       "Description": params.description, "Tags" : tagged};
 
