@@ -1,18 +1,31 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class SearchBar extends StatelessWidget implements PreferredSizeWidget {
+typedef StringCallback = void Function(String);
+
+class SearchBar extends StatefulWidget implements PreferredSizeWidget {
   final double kToolbarHeight = 72;
   final String hint;
   final VoidCallback refreshCallback;
+  final StringCallback submittedCallback;
 
-  const SearchBar({Key key, @required this.hint, this.refreshCallback}) : super(key: key);
+  const SearchBar({Key key, @required this.hint, this.refreshCallback, this.submittedCallback}) : super(key: key);
+
+  @override
+  SearchBarState createState() => SearchBarState();
+
+  @override
+  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+}
+
+class SearchBarState extends State<SearchBar> {
+  TextEditingController tfController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Container(
-        height: kToolbarHeight,
+        height: widget.kToolbarHeight,
         child: Padding(
           padding: EdgeInsets.all(8.0),
           child: Card(
@@ -34,20 +47,22 @@ class SearchBar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                   Expanded(
                     child: TextField(
+                      controller: tfController,
                       style: TextStyle(
                         fontSize: 20.0,
                       ),
                       decoration: InputDecoration(
                         border: InputBorder.none,
-                        hintText: this.hint,
-                      )
+                        hintText: widget.hint,
+                      ),
+                      onSubmitted: widget.submittedCallback,
                     ),
                   ),
                   IconButton(
                     icon: Icon(
                       Icons.refresh,
                     ),
-                    onPressed: refreshCallback,
+                    onPressed: widget.refreshCallback,
                   ),
                 ],
               )
@@ -57,7 +72,4 @@ class SearchBar extends StatelessWidget implements PreferredSizeWidget {
       ),
     );
   }
-
-  @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
 }

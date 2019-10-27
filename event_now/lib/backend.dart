@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 Future<Data> fetchData() async {
   final response = await http.get('http://ec2-3-19-243-124.us-east-2.compute.amazonaws.com:3001/getData');
@@ -35,23 +36,47 @@ class Data {
 
 class Event {
   final String name;
+  final int clubId;
+  final String description;
+  final List<String> tags;
   final double lat;
   final double long;
   final DateTime startTime;
   final DateTime endTime;
 
-  Event({this.name, this.lat, this.long, this.startTime, this.endTime});
+  Event({this.name, this.clubId, this.description, this.tags, this.lat, this.long, this.startTime, this.endTime});
 
   factory Event.fromJson(Map<String, dynamic> json) {
-    double lat = json['lat'];
-    double long = json['long'];
+    double lat = double.parse(json['lat']);
+    double long = double.parse(json['long']);
     return Event(
       name: json['name'],
+      clubId: json['id'],
+      description: json['description'],
+      tags: json['tags'],
       lat: lat,
       long: long,
-      startTime: DateTime.fromMillisecondsSinceEpoch(json['start'], isUtc: true),
-      endTime: DateTime.fromMillisecondsSinceEpoch(json['end'], isUtc: true),
+      startTime: DateTime.fromMillisecondsSinceEpoch(json['start']),
+      endTime: DateTime.fromMillisecondsSinceEpoch(json['end']),
     );
+  }
+
+  String prettifyTime(DateTime cur) {
+    DateFormat df = DateFormat("EEE, MMM d hh:mm aaa");
+    if (this.startTime.compareTo(cur) < 0) {
+      return df.format(this.startTime);
+    } else {
+      return "Ends at ${df.format(this.endTime)}";
+    }
+  }
+
+  bool tagsContain(String query) {
+    for (int i = 0; i < this.tags.length; i++) {
+      if (this.tags[i].contains(query)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @override

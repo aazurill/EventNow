@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'backend.dart';
 import 'searchbar.dart';
@@ -40,9 +41,12 @@ class MapWidgetState extends State<MapWidget> {
   GoogleMap googleMap;
 
   Future<Data> data;
+  Data dataFin;
   Set<Marker> markers = Set();
+  Set<Marker> filteredMarkers = Set();
 
   GlobalKey<ScaffoldState> _sk = GlobalKey();
+  GlobalKey<SearchBarState> _sb = GlobalKey();
 
   static final CameraPosition _kUCSD = CameraPosition(
     target: LatLng(32.8801, -117.2340),
@@ -74,7 +78,7 @@ class MapWidgetState extends State<MapWidget> {
       initialCameraPosition: _kUCSD,
       myLocationEnabled: true,
       myLocationButtonEnabled: false,
-      markers: markers,
+      markers: filteredMarkers,
       onMapCreated: (GoogleMapController controller) {
         if (!_controller.isCompleted) {
           _controller.complete(controller);
@@ -83,10 +87,34 @@ class MapWidgetState extends State<MapWidget> {
     );
 
     Widget searchBar = SearchBar(
+      key: _sb,
       hint: "Search events, locations",
       refreshCallback: () {
+        _sb.currentState.tfController.clear();
         setState(() {
           data = fetchData();
+        });
+      },
+      submittedCallback: (value) {
+        Set<Marker> fm = Set();
+        if (dataFin != null) {
+          for (int i = 0; i < dataFin.events.length; i++) {
+            Event e = dataFin.events[i];
+            if (e.name.contains(value) || e.tagsContain(value)) {
+              fm.add(
+                Marker(
+                  markerId: MarkerId(e.name),
+                  position: LatLng(e.lat, e.long),
+                  consumeTapEvents: true,
+                  onTap: () {
+                    _onMarkerTapped(context, e);
+                  }));
+            }
+          }
+        }
+
+        setState(() {
+          filteredMarkers = fm;
         });
       },
     );
@@ -158,18 +186,23 @@ class MapWidgetState extends State<MapWidget> {
           debugPrint('Error: ${snapshot.error}');
         } else {
           Set<Marker> res = Set();
+          dataFin = snapshot.data;
           for (int i = 0; i < snapshot.data.events.length; i++) {
             Event e = snapshot.data.events[i];
-            String markerId = 'marker_id_$i';
-            res.add(Marker(
-                markerId: MarkerId(markerId),
-                position: LatLng(e.lat, e.long),
-                consumeTapEvents: true,
-                onTap: () {
-                  _onMarkerTapped(context, e);
-                }));
+            String markerId = e.name;
+            DateTime now = DateTime.now();
+            if (now.compareTo(e.endTime) > 0) {
+              res.add(Marker(
+                  markerId: MarkerId(markerId),
+                  position: LatLng(e.lat, e.long),
+                  consumeTapEvents: true,
+                  onTap: () {
+                    _onMarkerTapped(context, e);
+                  }));
+            }
           }
           markers = res;
+          filteredMarkers = res;
         }
 
         return main;
@@ -180,40 +213,93 @@ class MapWidgetState extends State<MapWidget> {
   _onMarkerTapped(BuildContext context, Event e) {
     TextTheme tt = Theme.of(context).textTheme;
     _sk.currentState.showBottomSheet((context) {
-      return ConstrainedBox(
-        constraints: new BoxConstraints(
-          maxHeight: 350,
-        ),
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(e.name, style: tt.title),
-              Container(height: 12),
-              Text("Location: ${e.lat}, ${e.long}", style: tt.body1),
-              Container(height: 12),
-              Text("Time: ${e.startTime.toString()} to ${e.endTime.toString()}", style: tt.body1),
-              Container(height: 12),
-              InkWell(child: FloatingActionButton.extended(
-                  onPressed: () {},
-                  elevation: 0,
-                  hoverElevation: 1,
-                  highlightElevation: 1,
-                  label: Text("I'm going!")))
-            ],
-          ),
-        ),
+      return FutureBuilder(
+        future: Geolocator().placemarkFromCoordinates(e.lat, e.long),
+        builder: (BuildContext context, AsyncSnapshot<List<Placemark>> snapshot) {
+          String pos;
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return null;
+          } else if (snapshot.hasError || snapshot.data == null || snapshot.data.isEmpty) {
+            pos = "(${e.lat}, ${e.long})";
+          } else {
+            Placemark posM = snapshot.data[0];
+            pos = "${posM.thoroughfare}, ${posM.locality}";
+          }
+
+          return ConstrainedBox(
+            constraints: new BoxConstraints(
+              minHeight: 0,
+              maxHeight: 350,
+            ),
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(e.name, style: TextStyle(fontSize: 24.0)),
+                  Container(height: 20),
+                  Row(
+                    children: <Widget>[
+                      Icon(Icons.location_on),
+                      Container(width: 20),
+                      Text(pos, style: TextStyle(
+                          fontSize: 16.0, letterSpacing: 0.25)),
+                    ],
+                  ),
+                  Container(height: 16),
+                  Row(
+                    children: <Widget>[
+                      Icon(Icons.timer),
+                      Container(width: 20),
+                      Text(e.prettifyTime(DateTime.now()), style: tt.body1),
+                    ],
+                  ),
+                  Container(height: 16),
+                  Expanded(
+                      flex: 1,
+                      child: SingleChildScrollView(
+                          child: Text("Lorem ipsum: filler for description")
+                      )
+                  ),
+                  Container(height: 16),
+                  Row(
+                    children: <Widget>[
+                      InkWell(child: FloatingActionButton.extended(
+                          backgroundColor: Colors.grey,
+                          onPressed: () async {
+                            String url = 'https://www.google.com/maps/search/?api=1&query=${e.lat},${e.long}';
+                            if (await canLaunch(url)) {
+                              await launch(url);
+                            } else {
+                              _sk.currentState.showSnackBar(
+                                SnackBar(content: Text("Couldn't open directions!"))
+                              );
+                            }
+                          },
+                          elevation: 0,
+                          hoverElevation: 1,
+                          highlightElevation: 1,
+                          label: Text("Directions",
+                              style: TextStyle(fontSize: 12.0))))
+                    ],
+                  )
+                ],
+              ),
+            ),
+          );
+        },
       );
+
     });
   }
 
   Future<void> _moveToCurrentPosition() async {
     final GoogleMapController controller = await _controller.future;
     if (_currentPosition == null) {
+      _sk.currentState.hideCurrentSnackBar();
       final snackbar = SnackBar(content: Text("Couldn't get current location"));
-      Scaffold.of(context).hideCurrentSnackBar();
-      Scaffold.of(context).showSnackBar(snackbar);
+      _sk.currentState.showSnackBar(snackbar);
     } else {
       controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
           zoom: 16.0,
