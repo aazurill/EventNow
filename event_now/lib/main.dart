@@ -185,26 +185,32 @@ class MapWidgetState extends State<MapWidget> {
         } else if (snapshot.hasError) {
           debugPrint('Error: ${snapshot.error}');
         } else {
+          BitmapDescriptor icon;
+        
           Set<Marker> res = Set();
           dataFin = snapshot.data;
           for (int i = 0; i < snapshot.data.events.length; i++) {
             Event e = snapshot.data.events[i];
             String markerId = e.name;
+            if( e.tags.contains('sports')) {
+               icon = BitmapDescriptor.fromAsset('assets/sport.jpg');
+            }
+            else if( e.tags.contains('party')) {
+               icon = BitmapDescriptor.fromAsset('assets/party.png');
+            }
+            else if( e.tags.contains('learning')) {
+               icon = BitmapDescriptor.fromAsset('assets/learn.jpg');
+            }
+            else {
+               icon = BitmapDescriptor.defaultMarker;
+            }
             DateTime now = DateTime.now();
             if (now.compareTo(e.endTime) > 0) {
               res.add(Marker(
                   markerId: MarkerId(markerId),
                   position: LatLng(e.lat, e.long),
                   consumeTapEvents: true,
-                  if( 'sports' in tags) {
-                     icon:('sport.jpg')
-                  }
-                  else if( 'party' in tags) {
-                    icon:('party.png')
-                  }
-                  else if('learning' in tags) {
-                    icon:(learn.jpg)
-                  }
+                  icon: icon,
                   onTap: () {
                     _onMarkerTapped(context, e);
                   }));
