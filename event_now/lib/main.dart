@@ -42,6 +42,8 @@ class MapWidgetState extends State<MapWidget> {
   Future<Data> data;
   Set<Marker> markers = Set();
 
+  GlobalKey<ScaffoldState> _sk = GlobalKey();
+
   static final CameraPosition _kUCSD = CameraPosition(
     target: LatLng(32.8801, -117.2340),
     zoom: 15.0,
@@ -51,12 +53,18 @@ class MapWidgetState extends State<MapWidget> {
   void initState() {
     super.initState();
     const LocationOptions locationOptions =
-    LocationOptions(accuracy: LocationAccuracy.best, distanceFilter: 10);
+        LocationOptions(accuracy: LocationAccuracy.best, distanceFilter: 10);
     final Stream<Position> positionStream =
-    Geolocator().getPositionStream(locationOptions);
-    _streamSubscription = positionStream.listen(
-            (Position position) => setState(() { if (mounted) { _currentPosition = position; }}));
-    data = fetchData();
+        Geolocator().getPositionStream(locationOptions);
+    _streamSubscription =
+        positionStream.listen((Position position) => setState(() {
+              if (mounted) {
+                _currentPosition = position;
+              }
+            }));
+    setState(() {
+      data = fetchData();
+    });
   }
 
   @override
@@ -92,6 +100,7 @@ class MapWidgetState extends State<MapWidget> {
         ];
 
         Widget main = Scaffold(
+          key: _sk,
           floatingActionButton: FloatingActionButton(
             onPressed: _moveToCurrentPosition,
             child: Icon(Icons.my_location),
@@ -136,29 +145,29 @@ class MapWidgetState extends State<MapWidget> {
 
         if (snapshot.connectionState == ConnectionState.waiting) {
           debugPrint("We waitin boys");
-          stack.insert(2, SafeArea(
-            child: Align(
-              alignment: FractionalOffset(0.5, 0.125),
-              child: Container(
-                width: 50,
-                height: 50,
-                child: RefreshProgressIndicator()
-                )
-              )
-            ));
+          stack.insert(
+              2,
+              SafeArea(
+                  child: Align(
+                      alignment: FractionalOffset(0.5, 0.125),
+                      child: Container(
+                          width: 50,
+                          height: 50,
+                          child: RefreshProgressIndicator()))));
         } else if (snapshot.hasError) {
           debugPrint('Error: ${snapshot.error}');
         } else {
-          debugPrint('${(snapshot.data.events.toString())}');
           Set<Marker> res = Set();
           for (int i = 0; i < snapshot.data.events.length; i++) {
             Event e = snapshot.data.events[i];
             String markerId = 'marker_id_$i';
             res.add(Marker(
-              markerId: MarkerId(markerId),
-              position: LatLng(e.lat, e.long),
-              onTap: () { _onMarkerTapped(i); }
-            ));
+                markerId: MarkerId(markerId),
+                position: LatLng(e.lat, e.long),
+                consumeTapEvents: true,
+                onTap: () {
+                  _onMarkerTapped(context, e);
+                }));
           }
           markers = res;
         }
@@ -168,8 +177,35 @@ class MapWidgetState extends State<MapWidget> {
     );
   }
 
-  _onMarkerTapped(int ix) {
-    // TODO: Implement
+  _onMarkerTapped(BuildContext context, Event e) {
+    TextTheme tt = Theme.of(context).textTheme;
+    _sk.currentState.showBottomSheet((context) {
+      return ConstrainedBox(
+        constraints: new BoxConstraints(
+          maxHeight: 350,
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(e.name, style: tt.title),
+              Container(height: 12),
+              Text("Location: ${e.lat}, ${e.long}", style: tt.body1),
+              Container(height: 12),
+              Text("Time: ${e.startTime.toString()} to ${e.endTime.toString()}", style: tt.body1),
+              Container(height: 12),
+              InkWell(child: FloatingActionButton.extended(
+                  onPressed: () {},
+                  elevation: 0,
+                  hoverElevation: 1,
+                  highlightElevation: 1,
+                  label: Text("I'm going!")))
+            ],
+          ),
+        ),
+      );
+    });
   }
 
   Future<void> _moveToCurrentPosition() async {
@@ -182,7 +218,7 @@ class MapWidgetState extends State<MapWidget> {
       controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
           zoom: 16.0,
           target:
-          LatLng(_currentPosition.latitude, _currentPosition.longitude))));
+              LatLng(_currentPosition.latitude, _currentPosition.longitude))));
     }
   }
 }
