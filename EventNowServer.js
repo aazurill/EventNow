@@ -28,7 +28,6 @@ app.post('/insertData', (req, res) => {
     const params = req.body;
     var local = params.location.split(" ");
 
-    console.log(new Date(params.starttime).valueOf());
     var array = {"name": params.name, "lat": parseFloat(local[0]), "long": parseFloat(local[1]), "start": new Date(params.starttime).valueOf(), "end": new Date(params.endtime).valueOf()};
     events.push(array);
     obj.push(array);
@@ -44,8 +43,8 @@ app.post('/insertData', (req, res) => {
 
 // Gets all the events in the array
 app.get('/getData', (req, res) => {
-    res.send(events.toString());
 
+    res.send(events);
 });
 
 // TODO: Write a GET request to /count that checks iterates through
