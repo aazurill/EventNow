@@ -78,7 +78,9 @@ app.get('/getClub',(req,res) =>{
 app.get('/getMap', (req, res) => {
     res.sendFile(__dirname + "/index.html" );
 });
-
+app.get('/ALVIN',(req,res)=>{
+    res.sendFile(__dirname+ "/public/US.html");
+});
 app.get('/getEvent',(req,res)=>{
     res.send(events)
 });

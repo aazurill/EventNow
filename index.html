@@ -1,60 +1,151 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Simple Map</title>
-    <meta name="viewport" content="initial-scale=1.0">
-    <meta charset="utf-8">
-    <style>
-      /* Always set the map height explicitly to define the size of the div
-       * element that contains the map. */
-      #map {
-        height: 100%;
-      }
-      /* Optional: Makes the sample page fill the window. */
-      html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-    </style>
-  </head>
-  <body>
+<head>
+  <title>Simple Map</title>
+  <meta name="viewport" content="initial-scale=1.0">
+  <meta charset="utf-8">
+  <style>
+  /* Always set the map height explicitly to define the size of the div
+  * element that contains the map. */
+  #map {
+    height: 100%;
+  }
 
-    <div id="map"></div>
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .sidenav {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #51555c;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+  }
+
+  .sidenav a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #818181;
+    display: block;
+    transition: 0.3s;
+  }
+
+  .sidenav a:hover {
+    color: #f1f1f1;
+  }
+
+  .sidenav .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+  }
+
+  @media screen and (max-height: 450px) {
+    .sidenav {padding-top: 15px;}
+    .sidenav a {font-size: 18px;}
+  }
+  </style>
+</head>
+<body>
+  <div id="mySidenav" class="sidenav">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+    <a id="EventCaller" onmouseover = "mouseOver1()">All Events</a>
+    <a id="ClubCaller" onmouseover = "mouseOver2()">All Clubs</a>
+    <a href="http://localhost:8080/ALVIN">Developers</a>
+    <a href="https://github.com/aazurill/EventNow">Code</a>
+  </div>
+  <script>
+  function openNav() {
+    document.getElementById("mySidenav").style.width = "250px";
+  }
+
+  function closeNav() {
+    document.getElementById("mySidenav").style.width = "0";
+  }
+</script>
+<!-- Use any element to open the sidenav -->
+<span onmouseover="openNav()">open</span>
+
+<div id="map"></div>
 
 
-    <script>
-      var map;
-      var data;
-      //var listLocation = [['Geisel',32.5,-117.5,1],['Cafe Ventanas',31.5,-116.5,2],['Alvin',32,-117,3]];
-      var myRequest = new XMLHttpRequest();
-      myRequest.onreadystatechange = function(){
-        if(myRequest.readyState === 4){
-          data = JSON.parse(myRequest.responseText);
-        }
-      }
-            myRequest.open('GET',"http://localhost:8080/getEvent");
-            myRequest.send();
-      function initMap() {
-
-        map = new google.maps.Map(document.getElementById('map'), {
-          center: {lat:32,lng:-117},
-          zoom: 10
-        });
-        setMarkers(map);
-        function setMarkers(map){
-          for(var i=0;i<data.length;i++){
-            var location =data[i];
-            var marker = new google.maps.Marker({
-              position: {lat:parseFloat(location["lat"]),lng:parseFloat(location["long"])},
-              map:map,
-              title: location["name"],
-            })
-          }
-        }
-      }
-    </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDUsVtkB8CUXf-CgQTfqjo-RbWQJuoy030&callback=initMap" type="text/javascript"
-    async defer></script>
-  </body>
+<script>
+var map;
+var data;
+var club;
+//var listLocation = [['Geisel',32.5,-117.5,1],['Cafe Ventanas',31.5,-116.5,2],['Alvin',32,-117,3]];
+var myRequest = new XMLHttpRequest();
+myRequest.onreadystatechange = function(){
+  if(myRequest.readyState === 4){
+    data = JSON.parse(myRequest.responseText);
+  }
+}
+myRequest.open('GET',"http://localhost:8080/getEvent");
+myRequest.send();
+var myRequest1 = new XMLHttpRequest();
+myRequest1.onreadystatechange = function(){
+  if(myRequest1.readyState === 4){
+    club = JSON.parse(myRequest1.responseText);
+  }
+}
+myRequest1.open('GET',"http://localhost:8080/getClub");
+myRequest1.send();
+function initMap() {
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: {lat:32,lng:-117},
+    zoom: 10
+  });
+  setMarkers(map);
+  function setMarkers(map){
+    for(var i=0;i<data.length;i++){
+      var location =data[i];
+      var marker = new google.maps.Marker({
+        position: {lat:parseFloat(location["lat"]),lng:parseFloat(location["long"])},
+        map:map,
+        title: location["name"],
+      })
+    }
+  }
+}
+function prettyE(data){
+  var prett = "";
+  var converted = JSON.stringify(data);
+  var result = converted.substring(1,converted.length-1);
+  converted = JSON.parse("[" + result + "]");
+  converted.forEach(function(element){
+    prett = prett + element["name"] + " Hosted By: " + element["group"] + "\n" + element["Description"] + "\n" + "\n";
+  })
+  return prett;
+}
+function prettyC(data){
+  var prett = "";
+  var converted = JSON.stringify(data);
+  var result = converted.substring(1,converted.length-1);
+  converted = JSON.parse("[" + result + "]");
+  converted.forEach(function(element){
+    prett = prett + element["group"] +  "\n" + element["Description"] + "\n" + "\n";
+  })
+  return prett;
+}
+function mouseOver1(){
+  window.alert(prettyE(data));
+}
+function mouseOver2(){
+  window.alert(prettyC(club));
+}
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDUsVtkB8CUXf-CgQTfqjo-RbWQJuoy030&callback=initMap" type="text/javascript"
+async defer></script>
+</body>
 </html>
