@@ -74,68 +74,102 @@ class MapWidgetState extends State<MapWidget> {
       },
     );
 
-    Widget main = Scaffold(
-        floatingActionButton: FloatingActionButton(
-          onPressed: _moveToCurrentPosition,
-          child: Icon(Icons.my_location),
-        ),
-        drawer: Drawer(
-          // Add a ListView to the drawer. This ensures the user can scroll
-          // through the options in the drawer if there isn't enough vertical
-          // space to fit everything.
-          child: ListView(
-            // Important: Remove any padding from the ListView.
-            padding: EdgeInsets.zero,
-            children: <Widget>[
-              DrawerHeader(
-                child: Text('Anonymous user'),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
-                ),
-              ),
-              ListTile(
-                title: Text('Item 1'),
-                onTap: () {
-                  // Update the state of the app
-                  // ...
-                  // Then close the drawer
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: Text('Item 2'),
-                onTap: () {
-                  // Update the state of the app
-                  // ...
-                  // Then close the drawer
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-        ),
-        body: Stack(
-          children: <Widget>[
-            googleMap,
-            SearchBar(hint: "Search events, locations"),
-          ],
-        )
+    Widget searchBar = SearchBar(
+      hint: "Search events, locations",
+      refreshCallback: () {
+        setState(() {
+          data = fetchData();
+        });
+      },
     );
 
     return FutureBuilder(
       future: data,
       builder: (BuildContext context, AsyncSnapshot<Data> snapshot) {
+        List<Widget> stack = <Widget>[
+          googleMap,
+          searchBar,
+        ];
+
+        Widget main = Scaffold(
+          floatingActionButton: FloatingActionButton(
+            onPressed: _moveToCurrentPosition,
+            child: Icon(Icons.my_location),
+          ),
+          drawer: Drawer(
+            // Add a ListView to the drawer. This ensures the user can scroll
+            // through the options in the drawer if there isn't enough vertical
+            // space to fit everything.
+            child: ListView(
+              // Important: Remove any padding from the ListView.
+              padding: EdgeInsets.zero,
+              children: <Widget>[
+                DrawerHeader(
+                  child: Text('Anonymous user'),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+                ListTile(
+                  title: Text('Item 1'),
+                  onTap: () {
+                    // Update the state of the app
+                    // ...
+                    // Then close the drawer
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  title: Text('Item 2'),
+                  onTap: () {
+                    // Update the state of the app
+                    // ...
+                    // Then close the drawer
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+          ),
+          body: Stack(children: stack),
+        );
+
         if (snapshot.connectionState == ConnectionState.waiting) {
           debugPrint("We waitin boys");
-          return RefreshProgressIndicator();
+          stack.insert(2, SafeArea(
+            child: Align(
+              alignment: FractionalOffset(0.5, 0.125),
+              child: Container(
+                width: 50,
+                height: 50,
+                child: RefreshProgressIndicator()
+                )
+              )
+            ));
         } else if (snapshot.hasError) {
           debugPrint('Error: ${snapshot.error}');
         } else {
           debugPrint('${(snapshot.data.events.toString())}');
+          Set<Marker> res = Set();
+          for (int i = 0; i < snapshot.data.events.length; i++) {
+            Event e = snapshot.data.events[i];
+            String markerId = 'marker_id_$i';
+            res.add(Marker(
+              markerId: MarkerId(markerId),
+              position: LatLng(e.lat, e.long),
+              onTap: () { _onMarkerTapped(i); }
+            ));
+          }
+          markers = res;
         }
+
         return main;
       },
     );
+  }
+
+  _onMarkerTapped(int ix) {
+    // TODO: Implement
   }
 
   Future<void> _moveToCurrentPosition() async {
