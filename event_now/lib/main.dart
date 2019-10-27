@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import 'backend.dart';
 import 'searchbar.dart';
 
 void main() => runApp(MyApp());
@@ -38,6 +39,9 @@ class MapWidgetState extends State<MapWidget> {
 
   GoogleMap googleMap;
 
+  Future<Data> data;
+  Set<Marker> markers = Set();
+
   static final CameraPosition _kUCSD = CameraPosition(
     target: LatLng(32.8801, -117.2340),
     zoom: 15.0,
@@ -45,7 +49,6 @@ class MapWidgetState extends State<MapWidget> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     const LocationOptions locationOptions =
     LocationOptions(accuracy: LocationAccuracy.best, distanceFilter: 10);
@@ -53,6 +56,7 @@ class MapWidgetState extends State<MapWidget> {
     Geolocator().getPositionStream(locationOptions);
     _streamSubscription = positionStream.listen(
             (Position position) => setState(() { if (mounted) { _currentPosition = position; }}));
+    data = fetchData();
   }
 
   @override
@@ -62,6 +66,7 @@ class MapWidgetState extends State<MapWidget> {
       initialCameraPosition: _kUCSD,
       myLocationEnabled: true,
       myLocationButtonEnabled: false,
+      markers: markers,
       onMapCreated: (GoogleMapController controller) {
         if (!_controller.isCompleted) {
           _controller.complete(controller);
@@ -69,7 +74,7 @@ class MapWidgetState extends State<MapWidget> {
       },
     );
 
-    return Scaffold(
+    Widget main = Scaffold(
         floatingActionButton: FloatingActionButton(
           onPressed: _moveToCurrentPosition,
           child: Icon(Icons.my_location),
@@ -116,12 +121,28 @@ class MapWidgetState extends State<MapWidget> {
           ],
         )
     );
+
+    return FutureBuilder(
+      future: data,
+      builder: (BuildContext context, AsyncSnapshot<Data> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          debugPrint("We waitin boys");
+          return RefreshProgressIndicator();
+        } else if (snapshot.hasError) {
+          debugPrint('Error: ${snapshot.error}');
+        } else {
+          debugPrint('${(snapshot.data.events.toString())}');
+        }
+        return main;
+      },
+    );
   }
 
   Future<void> _moveToCurrentPosition() async {
     final GoogleMapController controller = await _controller.future;
     if (_currentPosition == null) {
       final snackbar = SnackBar(content: Text("Couldn't get current location"));
+      Scaffold.of(context).hideCurrentSnackBar();
       Scaffold.of(context).showSnackBar(snackbar);
     } else {
       controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
