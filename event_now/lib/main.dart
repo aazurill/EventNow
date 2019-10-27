@@ -8,7 +8,12 @@ import 'searchbar.dart';
 
 void main() => runApp(MyApp());
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  State<MyApp> createState() => MyAppState();
+}
+
+class MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -81,6 +86,10 @@ class MapWidget extends StatefulWidget {
 
 class MapWidgetState extends State<MapWidget> {
   Completer<GoogleMapController> _controller = Completer();
+  StreamSubscription<Position> _streamSubscription;
+  Position _currentPosition;
+
+  GoogleMap googleMap;
 
   static final CameraPosition _kUCSD = CameraPosition(
     target: LatLng(32.8801, -117.2340),
@@ -88,20 +97,44 @@ class MapWidgetState extends State<MapWidget> {
   );
 
   @override
+  void dispose() {
+    if (_streamSubscription != null) {
+      _streamSubscription.cancel();
+      _streamSubscription = null;
+    }
+
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    const LocationOptions locationOptions =
+    LocationOptions(accuracy: LocationAccuracy.best, distanceFilter: 10);
+    final Stream<Position> positionStream =
+    Geolocator().getPositionStream(locationOptions);
+    _streamSubscription = positionStream.listen(
+            (Position position) => setState(() { if (mounted) { _currentPosition = position; }}));
+  }
+
+  @override
   Widget build(BuildContext context) {
     final GlobalKey<ScaffoldState> key = GlobalKey();
 
+    googleMap = GoogleMap(
+      mapType: MapType.hybrid,
+      initialCameraPosition: _kUCSD,
+      myLocationEnabled: true,
+      myLocationButtonEnabled: false,
+      onMapCreated: (GoogleMapController controller) {
+        _controller.complete(controller);
+      },
+    );
+
     return new Scaffold(
       key: key,
-      body: GoogleMap(
-        mapType: MapType.hybrid,
-        initialCameraPosition: _kUCSD,
-        myLocationEnabled: true,
-        myLocationButtonEnabled: false,
-        onMapCreated: (GoogleMapController controller) {
-          _controller.complete(controller);
-        },
-      ),
+      body: googleMap,
       floatingActionButton: FloatingActionButton(
         onPressed: () => _moveToCurrentPosition(key),
         child: Icon(Icons.my_location),
@@ -111,16 +144,14 @@ class MapWidgetState extends State<MapWidget> {
 
   Future<void> _moveToCurrentPosition(GlobalKey<ScaffoldState> key) async {
     final GoogleMapController controller = await _controller.future;
-    Position p = await Geolocator().getCurrentPosition();
-    if (p == null) {
+    if (_currentPosition == null) {
       final snackbar = SnackBar(content: Text("Couldn't get current location"));
       key.currentState.showSnackBar(snackbar);
     } else {
       controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
           zoom: 16.0,
           target:
-              LatLng(p.latitude, p.longitude))));
+          LatLng(_currentPosition.latitude, _currentPosition.longitude))));
     }
   }
 }
-
