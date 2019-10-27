@@ -3,35 +3,91 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
-Future<Data> fetchData() async {
-  final response = await http.get('http://ec2-3-19-243-124.us-east-2.compute.amazonaws.com:8080/getEvent');
-  if (response.statusCode == 200) {
-    // If server returns an OK response, parse the JSON.
-    return Data.fromJson(json.decode(response.body));
-  } else {
-    // If that response was not OK, throw an error.
-    throw Exception('Failed to load post');
+class ClubData {
+  final List<Club> clubs;
+
+  ClubData({this.clubs});
+
+  factory ClubData.fromJson(List<dynamic> json) {
+    List<Club> res = [];
+    for (int i = 0; i < json.length; i++) {
+      Map<String, dynamic> x = json[i];
+      res.add(Club.fromJson(x));
+    }
+    return ClubData(clubs: res);
+  }
+
+  @override
+  String toString() {
+    return "Data: ${this.clubs.toString()}";
+  }
+
+  static Future<ClubData> fetchData() async {
+    final response = await http.get('http://ec2-3-19-243-124.us-east-2.compute.amazonaws.com:8080/getClub');
+    if (response.statusCode == 200) {
+      // If server returns an OK response, parse the JSON.
+      return ClubData.fromJson(json.decode(response.body));
+    } else {
+      // If that response was not OK, throw an error.
+      throw Exception('Failed to load clubs');
+    }
+  }
+
+}
+
+class Club {
+  final int id;
+  final String name;
+  final String description;
+
+  Club({this.id, this.name, this.description});
+
+  factory Club.fromJson(Map<String, dynamic> json) {
+    return Club(
+      name: json['group'],
+      id: json['ClubID'],
+      description: json['Description'],
+    );
+  }
+
+
+  @override
+  String toString() {
+    // TODO: implement toString
+    return "Club ${this.name} [${this.id}] - ${this.description}";
   }
 }
 
-class Data {
+class EventData {
   final List<Event> events;
 
-  Data({this.events});
+  EventData({this.events});
 
-  factory Data.fromJson(List<dynamic> json) {
+  factory EventData.fromJson(List<dynamic> json) {
     List<Event> res = [];
     for (int i = 0; i < json.length; i++) {
       Map<String, dynamic> x = json[i];
       res.add(Event.fromJson(x));
     }
-    return Data(events: res);
+    return EventData(events: res);
   }
 
   @override
   String toString() {
     return "Data: ${this.events.toString()}";
   }
+
+  static Future<EventData> fetchData() async {
+    final response = await http.get('http://ec2-3-19-243-124.us-east-2.compute.amazonaws.com:8080/getEvent');
+    if (response.statusCode == 200) {
+      // If server returns an OK response, parse the JSON.
+      return EventData.fromJson(json.decode(response.body));
+    } else {
+      // If that response was not OK, throw an error.
+      throw Exception('Failed to load events');
+    }
+  }
+
 }
 
 class Event {
@@ -54,8 +110,8 @@ class Event {
       name: json['name'],
       clubId: json['ClubID'],
       club: json["group"],
-      description: json['description'],
-      tags: json['tags'],
+      description: json['Description'],
+      tags: List<String>.from(json['Tags']),
       lat: lat,
       long: long,
       startTime: DateTime.fromMillisecondsSinceEpoch(json['start']),
