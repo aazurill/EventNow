@@ -70,6 +70,15 @@ class Event {
     }
   }
 
+  bool tagsContain(String query) {
+    for (int i = 0; i < this.tags.length; i++) {
+      if (this.tags[i].contains(query)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   @override
   String toString() {
     // TODO: implement toString
