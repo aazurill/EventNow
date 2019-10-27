@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'searchbar.dart';
@@ -11,13 +12,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'EventNow',
-      theme: ThemeData(
-        primaryColor: Colors.pink[300],
-        accentColor: Colors.greenAccent[200],
-      ),
-      home: Home()
-    );
+        title: 'EventNow',
+        theme: ThemeData(
+          primaryColor: Colors.pink[300],
+          accentColor: Colors.greenAccent[200],
+        ),
+        home: Home());
   }
 }
 
@@ -30,97 +30,97 @@ class HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: Drawer(
-        // Add a ListView to the drawer. This ensures the user can scroll
-        // through the options in the drawer if there isn't enough vertical
-        // space to fit everything.
-        child: ListView(
-          // Important: Remove any padding from the ListView.
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              child: Text('Anonymous user'),
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
+        drawer: Drawer(
+          // Add a ListView to the drawer. This ensures the user can scroll
+          // through the options in the drawer if there isn't enough vertical
+          // space to fit everything.
+          child: ListView(
+            // Important: Remove any padding from the ListView.
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              DrawerHeader(
+                child: Text('Anonymous user'),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                ),
               ),
-            ),
-            ListTile(
-              title: Text('Item 1'),
-              onTap: () {
-                // Update the state of the app
-                // ...
-                // Then close the drawer
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Item 2'),
-              onTap: () {
-                // Update the state of the app
-                // ...
-                // Then close the drawer
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
-      ),
-      body: Stack(
-        children: <Widget>[
-          MapSample(),
-          SearchBar(
-              hint: "Find an event"
+              ListTile(
+                title: Text('Item 1'),
+                onTap: () {
+                  // Update the state of the app
+                  // ...
+                  // Then close the drawer
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: Text('Item 2'),
+                onTap: () {
+                  // Update the state of the app
+                  // ...
+                  // Then close the drawer
+                  Navigator.pop(context);
+                },
+              ),
+            ],
           ),
-        ],
-      )
-    );
+        ),
+        body: Stack(
+          children: <Widget>[
+            MapWidget(),
+            SearchBar(hint: "Search events, locations"),
+          ],
+        ));
   }
 }
 
-class MapSample extends StatefulWidget {
+class MapWidget extends StatefulWidget {
   @override
-  State<MapSample> createState() => MapSampleState();
+  State<MapWidget> createState() => MapWidgetState();
 }
 
-class MapSampleState extends State<MapSample> {
+class MapWidgetState extends State<MapWidget> {
   Completer<GoogleMapController> _controller = Completer();
 
-  static final CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 14.4746,
+  static final CameraPosition _kUCSD = CameraPosition(
+    target: LatLng(32.8801, -117.2340),
+    zoom: 15.0,
   );
-
-  static final CameraPosition _kLake = CameraPosition(
-      bearing: 192.8334901395799,
-      target: LatLng(37.43296265331129, -122.08832357078792),
-      tilt: 59.440717697143555,
-      zoom: 19.151926040649414);
 
   @override
   Widget build(BuildContext context) {
+    final GlobalKey<ScaffoldState> key = GlobalKey();
+
     return new Scaffold(
-      body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).requestFocus(new FocusNode());
+      key: key,
+      body: GoogleMap(
+        mapType: MapType.hybrid,
+        initialCameraPosition: _kUCSD,
+        myLocationEnabled: true,
+        myLocationButtonEnabled: false,
+        onMapCreated: (GoogleMapController controller) {
+          _controller.complete(controller);
         },
-        child: GoogleMap(
-          mapType: MapType.hybrid,
-          initialCameraPosition: _kGooglePlex,
-          onMapCreated: (GoogleMapController controller) {
-            _controller.complete(controller);
-          },
-        )
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _goToTheLake,
-        label: Text('To the lake!'),
-        icon: Icon(Icons.directions_boat),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _moveToCurrentPosition(key),
+        child: Icon(Icons.my_location),
       ),
     );
   }
 
-  Future<void> _goToTheLake() async {
+  Future<void> _moveToCurrentPosition(GlobalKey<ScaffoldState> key) async {
     final GoogleMapController controller = await _controller.future;
-    controller.animateCamera(CameraUpdate.newCameraPosition(_kLake));
+    Position p = await Geolocator().getCurrentPosition();
+    if (p == null) {
+      final snackbar = SnackBar(content: Text("Couldn't get current location"));
+      key.currentState.showSnackBar(snackbar);
+    } else {
+      controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+          zoom: 16.0,
+          target:
+              LatLng(p.latitude, p.longitude))));
+    }
   }
 }
+
