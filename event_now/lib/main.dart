@@ -90,7 +90,9 @@ class MapWidgetState extends State<MapWidget> {
       key: _sb,
       hint: "Search events, locations",
       refreshCallback: () {
-        _sb.currentState.tfController.clear();
+        if (_sb.currentState != null) {
+          _sb.currentState.tfController.clear();
+        }
         setState(() {
           data = fetchData();
         });
@@ -185,20 +187,37 @@ class MapWidgetState extends State<MapWidget> {
         } else if (snapshot.hasError) {
           debugPrint('Error: ${snapshot.error}');
         } else {
+          Future<BitmapDescriptor> icon;
+        
           Set<Marker> res = Set();
           dataFin = snapshot.data;
           for (int i = 0; i < snapshot.data.events.length; i++) {
             Event e = snapshot.data.events[i];
             String markerId = e.name;
+            if( e.tags.contains('sports')) {
+               icon = BitmapDescriptor.fromAssetImage(ImageConfiguration(size: Size.square(0.1)), 'assets/sport.png');
+            }
+            else if( e.tags.contains('party')) {
+               icon = BitmapDescriptor.fromAssetImage(ImageConfiguration(size: Size.square(0.1)), 'assets/party.png');
+            }
+            else if( e.tags.contains('learning')) {
+               icon = BitmapDescriptor.fromAssetImage(ImageConfiguration(size: Size.square(0.1)), 'assets/learn.png');
+            }
+            else {
+               icon = Future.value(BitmapDescriptor.defaultMarker);
+            }
             DateTime now = DateTime.now();
-            if (now.compareTo(e.endTime) > 0) {
-              res.add(Marker(
-                  markerId: MarkerId(markerId),
-                  position: LatLng(e.lat, e.long),
-                  consumeTapEvents: true,
-                  onTap: () {
-                    _onMarkerTapped(context, e);
-                  }));
+            if (now.compareTo(e.endTime) < 0) {
+              icon.then((icon) {
+                res.add(Marker(
+                    markerId: MarkerId(markerId),
+                    position: LatLng(e.lat, e.long),
+                    consumeTapEvents: true,
+                    icon: icon,
+                    onTap: () {
+                      _onMarkerTapped(context, e);
+                    }));
+              });
             }
           }
           markers = res;
@@ -219,12 +238,16 @@ class MapWidgetState extends State<MapWidget> {
           String pos;
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return null;
+            pos = "(${e.lat}, ${e.long})";
           } else if (snapshot.hasError || snapshot.data == null || snapshot.data.isEmpty) {
             pos = "(${e.lat}, ${e.long})";
           } else {
             Placemark posM = snapshot.data[0];
-            pos = "${posM.thoroughfare}, ${posM.locality}";
+            if (posM.thoroughfare.isEmpty) {
+              pos = "(${e.lat}, ${e.long}); ${posM.locality} ${posM.postalCode}";
+            } else {
+              pos = "${posM.thoroughfare}, ${posM.locality} ${posM.postalCode}";
+            }
           }
 
           return ConstrainedBox(
@@ -238,13 +261,18 @@ class MapWidgetState extends State<MapWidget> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(e.name, style: TextStyle(fontSize: 24.0)),
+                  Container(height: 4),
+                  InputChip(
+                      label: Text(e.club),
+                      onPressed: () {}
+                  ),
                   Container(height: 20),
                   Row(
                     children: <Widget>[
                       Icon(Icons.location_on),
                       Container(width: 20),
                       Text(pos, style: TextStyle(
-                          fontSize: 16.0, letterSpacing: 0.25)),
+                          fontSize: 16.0, letterSpacing: 0.3)),
                     ],
                   ),
                   Container(height: 16),
@@ -252,21 +280,21 @@ class MapWidgetState extends State<MapWidget> {
                     children: <Widget>[
                       Icon(Icons.timer),
                       Container(width: 20),
-                      Text(e.prettifyTime(DateTime.now()), style: tt.body1),
+                      Text(e.prettifyTime(DateTime.now()), style: TextStyle(
+                          fontSize: 16.0, letterSpacing: 0.3)),
                     ],
                   ),
                   Container(height: 16),
                   Expanded(
                       flex: 1,
                       child: SingleChildScrollView(
-                          child: Text("Lorem ipsum: filler for description")
+                          child: Text(e.description)
                       )
                   ),
                   Container(height: 16),
                   Row(
                     children: <Widget>[
                       InkWell(child: FloatingActionButton.extended(
-                          backgroundColor: Colors.grey,
                           onPressed: () async {
                             String url = 'https://www.google.com/maps/search/?api=1&query=${e.lat},${e.long}';
                             if (await canLaunch(url)) {
