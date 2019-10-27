@@ -90,7 +90,9 @@ class MapWidgetState extends State<MapWidget> {
       key: _sb,
       hint: "Search events, locations",
       refreshCallback: () {
-        _sb.currentState.tfController.clear();
+        if (_sb.currentState != null) {
+          _sb.currentState.tfController.clear();
+        }
         setState(() {
           data = fetchData();
         });
@@ -205,6 +207,7 @@ class MapWidgetState extends State<MapWidget> {
                   else if('learning' in tags) {
                     icon:(learn.jpg)
                   }
+                  */
                   onTap: () {
                     _onMarkerTapped(context, e);
                   }));
