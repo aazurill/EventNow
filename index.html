@@ -62,7 +62,7 @@
     <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
     <a id="EventCaller" onmouseover = "mouseOver1()">All Events</a>
     <a id="ClubCaller" onmouseover = "mouseOver2()">All Clubs</a>
-    <a href="http://localhost:8080/ALVIN">Developers</a>
+    <a href="/ALVIN">Developers</a>
     <a href="https://github.com/aazurill/EventNow">Code</a>
   </div>
   <script>
@@ -91,7 +91,7 @@ myRequest.onreadystatechange = function(){
     data = JSON.parse(myRequest.responseText);
   }
 }
-myRequest.open('GET',"http://localhost:8080/getEvent");
+myRequest.open('GET',"/getEvent");
 myRequest.send();
 var myRequest1 = new XMLHttpRequest();
 myRequest1.onreadystatechange = function(){
@@ -99,7 +99,7 @@ myRequest1.onreadystatechange = function(){
     club = JSON.parse(myRequest1.responseText);
   }
 }
-myRequest1.open('GET',"http://localhost:8080/getClub");
+myRequest1.open('GET',"/getClub");
 myRequest1.send();
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
