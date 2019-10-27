@@ -195,13 +195,13 @@ class MapWidgetState extends State<MapWidget> {
             Event e = snapshot.data.events[i];
             String markerId = e.name;
             if( e.tags.contains('sports')) {
-               icon = BitmapDescriptor.fromAssetImage(ImageConfiguration(size: Size.square(0.1)), 'assets/sport.png');
+               icon = BitmapDescriptor.fromAssetImage(ImageConfiguration(size: Size.square(1)), 'assets/sport.png');
             }
             else if( e.tags.contains('party')) {
-               icon = BitmapDescriptor.fromAssetImage(ImageConfiguration(size: Size.square(0.1)), 'assets/party.png');
+               icon = BitmapDescriptor.fromAssetImage(ImageConfiguration(size: Size.square(1)), 'assets/party.png');
             }
             else if( e.tags.contains('learning')) {
-               icon = BitmapDescriptor.fromAssetImage(ImageConfiguration(size: Size.square(0.1)), 'assets/learn.png');
+               icon = BitmapDescriptor.fromAssetImage(ImageConfiguration(size: Size.square(1)), 'assets/learn.png');
             }
             else {
                icon = Future.value(BitmapDescriptor.defaultMarker);
@@ -230,7 +230,6 @@ class MapWidgetState extends State<MapWidget> {
   }
 
   _onMarkerTapped(BuildContext context, Event e) {
-    TextTheme tt = Theme.of(context).textTheme;
     _sk.currentState.showBottomSheet((context) {
       return FutureBuilder(
         future: Geolocator().placemarkFromCoordinates(e.lat, e.long),
@@ -253,24 +252,32 @@ class MapWidgetState extends State<MapWidget> {
           return ConstrainedBox(
             constraints: new BoxConstraints(
               minHeight: 0,
-              maxHeight: 350,
+              maxHeight: 500,
             ),
             child: Padding(
-              padding: EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 20.0),
+              padding: EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(e.name, style: TextStyle(fontSize: 24.0)),
                   Container(height: 4),
                   InputChip(
+                    backgroundColor: Theme.of(context).accentColor,
                       label: Text(e.club),
                       onPressed: () {}
                   ),
                   Container(height: 20),
                   Row(
                     children: <Widget>[
+                      Icon(Icons.local_offer),
+                      Container(width: 24)
+                    ]..addAll(e.tags.map((s) => Padding(padding: EdgeInsets.only(right: 2.0), child: Chip(label: Text(s)))))
+                  ),
+                  Container(height: 4),
+                  Row(
+                    children: <Widget>[
                       Icon(Icons.location_on),
-                      Container(width: 20),
+                      Container(width: 24),
                       Text(pos, style: TextStyle(
                           fontSize: 16.0, letterSpacing: 0.3)),
                     ],
@@ -279,39 +286,38 @@ class MapWidgetState extends State<MapWidget> {
                   Row(
                     children: <Widget>[
                       Icon(Icons.timer),
-                      Container(width: 20),
+                      Container(width: 24),
                       Text(e.prettifyTime(DateTime.now()), style: TextStyle(
                           fontSize: 16.0, letterSpacing: 0.3)),
                     ],
                   ),
-                  Container(height: 16),
+                  Container(height: 24),
                   Expanded(
                       flex: 1,
                       child: SingleChildScrollView(
-                          child: Text(e.description)
+                          child: Text(e.description, style: TextStyle(fontSize: 16.0))
                       )
                   ),
-                  Container(height: 16),
                   Row(
                     children: <Widget>[
-                      InkWell(child: FloatingActionButton.extended(
+                      Expanded(
+                        child: RaisedButton(
+                          color: Theme.of(context).accentColor,
                           onPressed: () async {
                             String url = 'https://www.google.com/maps/search/?api=1&query=${e.lat},${e.long}';
                             if (await canLaunch(url)) {
                               await launch(url);
                             } else {
                               _sk.currentState.showSnackBar(
-                                SnackBar(content: Text("Couldn't open directions!"))
+                                  SnackBar(content: Text("Couldn't open directions!"))
                               );
                             }
                           },
-                          elevation: 0,
-                          hoverElevation: 1,
-                          highlightElevation: 1,
-                          label: Text("Directions",
-                              style: TextStyle(fontSize: 12.0))))
+                          child: Text("Directions")
+                        )
+                      )
                     ],
-                  )
+                  ),
                 ],
               ),
             ),
