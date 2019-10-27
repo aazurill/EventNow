@@ -7,35 +7,38 @@
     </head>
     <style>
     body{
-        background-image: url("geisel.jpg");
-        height: 100%;
+        background-image: url("geisel.jpg"); 
+        background-size: contain;
         background-repeat: no-repeat;
-        background-size: cover;
     }
     </style>
     <body>
-        <a href="/getData"> View All Events </a>
-        <h1> Events List </h1>
-        <img src="testpic.jpg" alt="Picture" width="150" height="150">
+        <a href="/getData"> <p>Click Here to View All Events!</p> </a>
+        <h1> Event Now! </h1>
+        <link href="https://fonts.googleapis.com/css?family=Fascinate+Inline|Luckiest+Guy|Modak|Open+Sans|Open+Sans+Condensed:300|Permanent+Marker|Staatliches&display=swap" rel="stylesheet">
+        <link rel="icon" type="image/jpg" href="public/icon.jpg">
+        <img class="center-block" src="test.png" alt="Picture" width="350" height="350">
         <form action="/insertData" method="POST">
-            <p>Type Event to Add: &nbsp;&nbsp; Location: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Start Time: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;End Time:</p>
-            <input type="text" name="name"/>
-            <input type="text" name="location"/>
-            <input type ="datetime-local" name="starttime"/>
-            <input type ="datetime-local" name="endtime"/>
-            <input type="submit" value="insert"/>
+            <p>Type Event to Add: </p>
+            <input class="center-block" type="text" name="name"/>
+            <p>Location: </p>
+            <input class="center-block" type="text" name="location"/>
+            <p>Start Time: </p>
+            <input class="center-block" type ="datetime-local" name="starttime"/>
+            <p>End Time:</p>
+            <input class="center-block" type ="datetime-local" name="endtime"/>
+            <input class="center-block" type="submit" value="insert"/>
 
         </form>
 
         <form action="/count" method="GET">
             <p>Find Out How Many Events Exist in the Database</p>
-            <input type="text" name="events" />
-            <input type="submit" value="search" />
+            <input class="center-block" type="text" name="events" />
+            <input class="center-block" type="submit" value="search" />
         </form>
-
         <form action="/randomEvent" method="GET">
-            <p>Choose a Random Event</p>
-            <input type="submit" value="Random Event"/>
+            <p>Bored? Click Here For a Random Event to Attend!</p>
+            <input class="center-block" type="submit" value="Random Event"/>
         </form>
     </body>
 </html>
