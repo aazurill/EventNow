@@ -1,42 +1,63 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:http/http.dart' as http;Future<http.Response> fetchPost() {
-  return http.get('XXXXXXXPLACEWEBSITEXXXXXXXX');
-}
+import 'package:http/http.dart' as http;
 
-Future<Event> fetchEvent() async {
-  final response =
-  await http.get('https://jsonplaceholder.typicode.com/posts/1');
-
+Future<Data> fetchData() async {
+  final response = await http.get('http://ec2-3-19-243-124.us-east-2.compute.amazonaws.com:3001/getData');
   if (response.statusCode == 200) {
     // If server returns an OK response, parse the JSON.
-    return Event.fromJson(json.decode(response.body));
+    return Data.fromJson(json.decode(response.body));
   } else {
     // If that response was not OK, throw an error.
     throw Exception('Failed to load post');
   }
 }
+
 class Data {
-  List<Event> events = new List<Event>();
+  final List<Event> events;
+
+  Data({this.events});
+
+  factory Data.fromJson(List<dynamic> json) {
+    List<Event> res = [];
+    for (int i = 0; i < json.length; i++) {
+      Map<String, dynamic> x = json[i];
+      res.add(Event.fromJson(x));
+    }
+    return Data(events: res);
+  }
+
+  @override
+  String toString() {
+    return "Data: ${this.events.toString()}";
+  }
 }
 
 class Event {
   final String name;
   final double lat;
   final double long;
-  final int startTime;
-  final int endTime;
+  final DateTime startTime;
+  final DateTime endTime;
 
   Event({this.name, this.lat, this.long, this.startTime, this.endTime});
 
   factory Event.fromJson(Map<String, dynamic> json) {
+    double lat = json['lat'];
+    double long = json['long'];
     return Event(
       name: json['name'],
-      lat: json['lat'],
-      long: json['long'],
-      startTime: json['start'],
-      endTime: json['end'],
+      lat: lat,
+      long: long,
+      startTime: DateTime.fromMillisecondsSinceEpoch(json['start'], isUtc: true),
+      endTime: DateTime.fromMillisecondsSinceEpoch(json['end'], isUtc: true),
     );
+  }
+
+  @override
+  String toString() {
+    // TODO: implement toString
+    return "Event ${this.name} at (${this.lat}, ${this.long}) time (${this.startTime}, ${this.endTime})";
   }
 }
 

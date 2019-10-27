@@ -41,6 +41,14 @@ class SearchBar extends StatelessWidget implements PreferredSizeWidget {
                       )
                     ),
                   ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.refresh,
+                    ),
+                    onPressed: () {
+                      Scaffold.of(context).openDrawer();
+                    },
+                  ),
                 ],
               )
             )
