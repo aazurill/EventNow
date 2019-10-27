@@ -198,7 +198,7 @@ class MapWidgetState extends State<MapWidget> {
                   markerId: MarkerId(markerId),
                   position: LatLng(e.lat, e.long),
                   consumeTapEvents: true,
-                  /* if( 'sports' in tags) {
+                  if( 'sports' in tags) {
                      icon:('sport.jpg')
                   }
                   else if( 'party' in tags) {
