@@ -121,7 +121,7 @@ class Event {
 
   String prettifyTime(DateTime cur) {
     DateFormat df = DateFormat("EEE, MMM d hh:mm aaa");
-    if (this.startTime.compareTo(cur) < 0) {
+    if (this.startTime.compareTo(cur) > 0) {
       return df.format(this.startTime);
     } else {
       return "Ends at ${df.format(this.endTime)}";
