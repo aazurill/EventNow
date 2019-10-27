@@ -4,16 +4,22 @@ const bodyParser = require('body-parser');
 const app = express();
 const server = http.createServer(app);
 var fs = require('fs');
+var ClubID = 0;
 // Server will always find an open port.
 const port = process.env.PORT || 8080;
 server.listen(port, '0.0.0.0', () => {
     console.log(`Server listening on port ${port}`);
 });
-// List of events
+
+
 const events = [];
+const clubs = [];
+const tags =[];
+
 jsonStr ='[]';
 app.use(express.static(__dirname+"/public"));
 var obj = JSON.parse(jsonStr);
+
 // Needed to process body parameters for POST requests
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -26,10 +32,34 @@ app.get('/', (req, res) => {
 app.post('/insertData', (req, res) => {
     const params = req.body;
     var local = params.location.split(" ");
-    //console.log(parseFloat(local[0]));
-    console.log(new Date(params.starttime).valueOf());
-    var array = {"name": params.name, "group": params.group,"lat": parseFloat(local[0]).toFixed(2),
-      "long": parseFloat(local[1]).toFixed(2), "start": new Date(params.starttime).valueOf(), "end": new Date(params.endtime).valueOf()};
+    var exists = false;
+    var tempID = -1;
+    var tagged = params.tagger.split(" ");
+    var x;
+    for( x =0;x<tagged.length;x++){
+      if(!tags.includes(tagged[x])){
+        tags.push(tagged[x]);
+      }
+    }
+    clubs.forEach(function(element){
+      if(element["group"]==params.group){
+        exists = true;
+      }
+      else{
+        tempID = element["ClubID"];
+      }
+    });
+    if(!exists){
+      var clubD = {"group": params.group, "ClubID": ClubID++, "Description": "TBA"};
+      clubs.push(clubD);
+      tempID = ClubID;
+    }
+
+    var array = {"name": params.name, "group": params.group, "ClubID": ClubID, "lat": parseFloat(local[0]).toFixed(2),
+      "long": parseFloat(local[1]).toFixed(2),
+      "start": new Date(params.starttime).valueOf(), "end": new Date(params.endtime).valueOf(),
+      "Description": params.description, "Tags" : tagged};
+
     events.push(array);
     obj.push(array);
 
@@ -41,7 +71,9 @@ app.post('/insertData', (req, res) => {
     });
     res.redirect('/');
 });
-
+app.post('/getClub',(req,res) =>{
+  res.send(clubs);
+})
 // Gets all the events in the array
 app.get('/getMap', (req, res) => {
     res.sendFile(__dirname + "/index.html" );
@@ -50,18 +82,12 @@ app.get('/getMap', (req, res) => {
 app.get('/getEvent',(req,res)=>{
     res.send(events)
 });
-// TODO: Write a GET request to /count that checks iterates through
-//       the array and sends how many of a certain ice cream event
-//       exists to the response.
-//       Use req.query.event to grab the event parameter.
+
+
 app.get('/count', (req, res) => {
     const event = req.query.event;
-    let count = 0;
-    for (let i = 0; i < events.length; i++) {
-        if (events[i][0] == event) {
-            count++;
-        }
-    }
+    let count = events.length;
+
     res.send(count.toString());
 });
 
@@ -70,6 +96,16 @@ app.get('/count', (req, res) => {
 app.get('/randomEvent', (req,res) => {
   const event = events[getRandomNumber()];
     res.send(event[0]);
+});
+
+app.get('/findEvent', (req,res) => {
+    const keywords = req.query.keywords;
+    for (let i = 0; i < events.length; i++) {
+        if (events[i]["name"].includes(keywords)) {
+            interested.push(events[i]);
+        }
+    }
+    res.send(interested);
 });
 
 // Method that gets a random index from the events array
