@@ -1,10 +1,12 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class SearchBar extends StatelessWidget implements PreferredSizeWidget {
   final double kToolbarHeight = 72;
   final String hint;
+  final VoidCallback refreshCallback;
 
-  const SearchBar({Key key, @required this.hint}) : super(key: key);
+  const SearchBar({Key key, @required this.hint, this.refreshCallback}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -45,9 +47,7 @@ class SearchBar extends StatelessWidget implements PreferredSizeWidget {
                     icon: Icon(
                       Icons.refresh,
                     ),
-                    onPressed: () {
-                      Scaffold.of(context).openDrawer();
-                    },
+                    onPressed: refreshCallback,
                   ),
                 ],
               )
