@@ -212,20 +212,7 @@ class MapWidgetState extends State<MapWidget> {
                   markerId: MarkerId(markerId),
                   position: LatLng(e.lat, e.long),
                   consumeTapEvents: true,
-<<<<<<< HEAD
                   icon: icon,
-=======
-                  if( 'sports' in tags) {
-                     icon:('sport.jpg')
-                  }
-                  else if( 'party' in tags) {
-                    icon:('party.png')
-                  }
-                  else if('learning' in tags) {
-                    icon:(learn.jpg)
-                  }
-                  */
->>>>>>> c055737ae4899b99ec77067e28e665713ae7bad2
                   onTap: () {
                     _onMarkerTapped(context, e);
                   }));
