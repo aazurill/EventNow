@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 const app = express();
 const server = http.createServer(app);
 var fs = require('fs');
-// Server will always find an open port.
 const port = process.env.PORT || 3001;
 server.listen(port, '0.0.0.0', () => {
     console.log(`Server listening on port ${port}`);
@@ -12,6 +11,7 @@ server.listen(port, '0.0.0.0', () => {
 
 // List of events
 const events = [];
+const interested = [];
 jsonStr ='[]';
 app.use(express.static(__dirname+"/public"));
 var obj = JSON.parse(jsonStr);
@@ -53,12 +53,12 @@ app.get('/getData', (req, res) => {
 //       Use req.query.event to grab the event parameter.
 app.get('/count', (req, res) => {
     const event = req.query.event;
-    let count = 0;
-    for (let i = 0; i < events.length; i++) {
+    let count = events.length;
+    /*for (let i = 0; i < events.length; i++) {
         if (events[i][0] == event) {
             count++;
         }
-    }
+    } */
     res.send(count.toString());
 });
 
@@ -68,6 +68,17 @@ app.get('/randomEvent', (req,res) => {
   const event = events[getRandomNumber()];
     res.send(event[0]);
 });
+
+app.get('/findEvent', (req,res) => {
+    const keywords = req.query.keywords;
+    for (let i = 0; i < events.length; i++) {
+        if (events[i]["name"].includes(keywords)) {
+            interested.push(events[i]);
+        }
+    }
+    res.send(interested);
+});
+
 
 // Method that gets a random index from the events array
 function getRandomNumber() {

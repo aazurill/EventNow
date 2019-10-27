@@ -35,12 +35,18 @@
         </form>
 
         <form action="/count" method="GET">
-            <p>Find Out How Many Events Exist in the Database</p>
-            <input class="center-block" type="text" name="events" />
+            <p>Click "GO!" to find out how many events are going on right now!</p>
+            <input class="center-block" type="submit" value="GO!" />
+        </form>
+
+        <form action="/findEvent" method="GET">
+            <p>Use keywords to search if an event you're interested in is going on right now:</p>
+            <input class="center-block" type="text" name="keywords" />
             <input class="center-block" type="submit" value="search" />
         </form>
+
         <form action="/randomEvent" method="GET">
-            <p>Bored? Click Here For a Random Event to Attend!</p>
+            <p>Bored? Click here for a random event to attend!</p>
             <input class="center-block" type="submit" value="Random Event"/>
             <p>This robust service has been brought to you by: </p>
             <img class="center-block" src="david1.png" alt="David" width="350" height="350">
