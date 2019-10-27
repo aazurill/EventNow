@@ -6,6 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'backend.dart';
+import 'clubs.dart';
 import 'searchbar.dart';
 
 void main() => runApp(MyApp());
@@ -40,8 +41,9 @@ class MapWidgetState extends State<MapWidget> {
 
   GoogleMap googleMap;
 
-  Future<Data> data;
-  Data dataFin;
+  Future<List<dynamic>> data;
+  EventData dataFin;
+  ClubData dataC;
   Set<Marker> markers = Set();
   Set<Marker> filteredMarkers = Set();
 
@@ -52,6 +54,12 @@ class MapWidgetState extends State<MapWidget> {
     target: LatLng(32.8801, -117.2340),
     zoom: 15.0,
   );
+
+  _reload() {
+    setState(() {
+      data = Future.wait([EventData.fetchData(), ClubData.fetchData()]);
+    });
+  }
 
   @override
   void initState() {
@@ -66,15 +74,13 @@ class MapWidgetState extends State<MapWidget> {
                 _currentPosition = position;
               }
             }));
-    setState(() {
-      data = fetchData();
-    });
+    _reload();
   }
 
   @override
   Widget build(BuildContext context) {
     googleMap = GoogleMap(
-      mapType: MapType.hybrid,
+      mapType: MapType.normal,
       initialCameraPosition: _kUCSD,
       myLocationEnabled: true,
       myLocationButtonEnabled: false,
@@ -93,9 +99,7 @@ class MapWidgetState extends State<MapWidget> {
         if (_sb.currentState != null) {
           _sb.currentState.tfController.clear();
         }
-        setState(() {
-          data = fetchData();
-        });
+        _reload();
       },
       submittedCallback: (value) {
         Set<Marker> fm = Set();
@@ -123,7 +127,7 @@ class MapWidgetState extends State<MapWidget> {
 
     return FutureBuilder(
       future: data,
-      builder: (BuildContext context, AsyncSnapshot<Data> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<List<dynamic>> snapshot) {
         List<Widget> stack = <Widget>[
           googleMap,
           searchBar,
@@ -188,11 +192,12 @@ class MapWidgetState extends State<MapWidget> {
           debugPrint('Error: ${snapshot.error}');
         } else {
           Future<BitmapDescriptor> icon;
-        
+
           Set<Marker> res = Set();
-          dataFin = snapshot.data;
-          for (int i = 0; i < snapshot.data.events.length; i++) {
-            Event e = snapshot.data.events[i];
+          dataFin = snapshot.data[0];
+          dataC = snapshot.data[1];
+          for (int i = 0; i < dataFin.events.length; i++) {
+            Event e = dataFin.events[i];
             String markerId = e.name;
             if( e.tags.contains('sports')) {
                icon = BitmapDescriptor.fromAssetImage(ImageConfiguration(size: Size.square(1)), 'assets/sport.png');
@@ -264,14 +269,17 @@ class MapWidgetState extends State<MapWidget> {
                   InputChip(
                     backgroundColor: Theme.of(context).accentColor,
                       label: Text(e.club),
-                      onPressed: () {}
+                      onPressed: () {
+                        Club c = dataC.clubs.singleWhere((c) => c.id < e.clubId, orElse: () => null);
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => ClubWidget(ed: dataFin, cd: dataC, c: c)));
+                      }
                   ),
                   Container(height: 20),
                   Row(
                     children: <Widget>[
                       Icon(Icons.local_offer),
                       Container(width: 24)
-                    ]..addAll(e.tags.map((s) => Padding(padding: EdgeInsets.only(right: 2.0), child: Chip(label: Text(s)))))
+                    ]..addAll(e.tags.map((s) => Padding(padding: EdgeInsets.only(right: 4.0), child: Chip(label: Text(s)))))
                   ),
                   Container(height: 4),
                   Row(
@@ -291,7 +299,7 @@ class MapWidgetState extends State<MapWidget> {
                           fontSize: 16.0, letterSpacing: 0.3)),
                     ],
                   ),
-                  Container(height: 24),
+                  Container(height: 32),
                   Expanded(
                       flex: 1,
                       child: SingleChildScrollView(
@@ -313,7 +321,7 @@ class MapWidgetState extends State<MapWidget> {
                               );
                             }
                           },
-                          child: Text("Directions")
+                          child: Text("DIRECTIONS", style: TextStyle(letterSpacing: 1.2))
                         )
                       )
                     ],
