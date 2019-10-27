@@ -28,8 +28,8 @@ app.post('/insertData', (req, res) => {
     var local = params.location.split(" ");
     //console.log(parseFloat(local[0]));
     console.log(new Date(params.starttime).valueOf());
-    var array = {"name": params.name, "group": params.group,"lat": parseFloat(local[0]),
-      "long": parseFloat(local[1]), "start": new Date(params.starttime).valueOf(), "end": new Date(params.endtime).valueOf()};
+    var array = {"name": params.name, "group": params.group,"lat": parseFloat(local[0]).toFixed(2),
+      "long": parseFloat(local[1]).toFixed(2), "start": new Date(params.starttime).valueOf(), "end": new Date(params.endtime).valueOf()};
     events.push(array);
     obj.push(array);
 

@@ -46,7 +46,7 @@
           for(var i=0;i<data.length;i++){
             var location =data[i];
             var marker = new google.maps.Marker({
-              position: {lat:location["lat"],lng:location["long"]},
+              position: {lat:parseFloat(location["lat"]),lng:parseFloat(location["long"])},
               map:map,
               title: location["name"],
             })
