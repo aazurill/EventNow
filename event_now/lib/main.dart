@@ -195,13 +195,13 @@ class MapWidgetState extends State<MapWidget> {
             Event e = snapshot.data.events[i];
             String markerId = e.name;
             if( e.tags.contains('sports')) {
-               icon = BitmapDescriptor.fromAssetImage(ImageConfiguration(size: Size.square(0.1)), 'assets/sport.jpg');
+               icon = BitmapDescriptor.fromAssetImage(ImageConfiguration(size: Size.square(0.1)), 'assets/sport.png');
             }
             else if( e.tags.contains('party')) {
                icon = BitmapDescriptor.fromAssetImage(ImageConfiguration(size: Size.square(0.1)), 'assets/party.png');
             }
             else if( e.tags.contains('learning')) {
-               icon = BitmapDescriptor.fromAssetImage(ImageConfiguration(size: Size.square(0.1)), 'assets/learn.jpg');
+               icon = BitmapDescriptor.fromAssetImage(ImageConfiguration(size: Size.square(0.1)), 'assets/learn.png');
             }
             else {
                icon = Future.value(BitmapDescriptor.defaultMarker);
