@@ -13,7 +13,3 @@ fs.readFile('./index.html', function (err, html) {
         response.end();
     }).listen(PORT);
 });
-function load(){
-  var mydata = JSON.parse(EventList);
-  alert(mydata[0]);
-}
