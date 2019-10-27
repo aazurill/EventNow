@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
     <head>
         <meta charset="UTF-8">
@@ -19,48 +20,64 @@
         <link rel="icon" type="image/jpg" href="public/icon.jpg">
         <img class="center-block" src="test.png" alt="Picture" width="350" height="350">
         <form action="/insertData" method="POST">
-            <p>Type Event to Add: </p>
-            <p>Name: </p>
-            <input class="center-block" type="text" name="name"/>
-            <p>Group: </p>
-            <input class="center-block" type="text" name="group"/>
-            <p>Location: </p>
-            <input class="center-block" type="text" name="location"/>
-            <p>Start Time: </p>
-            <input class="center-block" type ="datetime-local" name="starttime"/>
-            <p>End Time:</p>
-            <input class="center-block" type ="datetime-local" name="endtime"/>
-            <p>Description:</p>
-            <input class="center-clock" type= "text" name= "description"/>
-            <p>Tags</p>
-            <input class="center-clock" type="text" name= "tagger"/>
-            <input class="center-block" type="submit" value="insert"/>
+            <div class="grid-container"/>
+                <div class="form-container1">
+                    <img class="center-block" src="black.png" alt="Picture" width="55" height="60">
+                    <p>Name: </p>
+                    <input class="center-block" type="text" name="name"/>
+                    <p>Start Time: </p>
+                    <input class="center-block" type ="datetime-local" name="starttime"/>
+                    <p>Tags</p>
+                    <input class="center-block" type="text" name= "tagger"/>
+                    <img class="center-block" src="black.png" alt="Picture" width="55" height="90">
+                    <form action="/count" method="GET">
+                        <p>Click "GO!" to find out how many events are going on right now!</p>
+                        <input class="center-block" type="submit" value="GO!" />
+                    </form>
+                </div>
+                <div class="form-container2">
+                    <p>Type Event to Add: </p>
+                    <p>Group: </p>
+                    <input class="center-block" type="text" name="group"/>
+                    <p>End Time:</p>
+                    <input class="center-block" type ="datetime-local" name="endtime"/>
+                    <img class="center-block" src="black.png" alt="Picture" width="55" height="85">
+                    <input class="center-block" type="submit" value="Insert Event"/>
+                    <img class="center-block" src="black.png" alt="Picture" width="50" height="100">
+                    <img class="center-block" src="bored.png" alt="Picture" width="180" height="180">
+                    <form action="/randomEvent" method="GET">
+                        <p>Bored? Click here for a random event to attend!</p>
+                        <input class="center-block" type="submit" value="Random Event"/>
+                        <img class="center-block" src="black.png" alt="Picture" width="50" height="50">
+                        <p>This robust service has been brought to you by: </p>
+                        <img class="center-block" src="david1.png" alt="David" width="250" height="250">
+                        <p>David Cao</p>
+                        <img class="center-block" src="blobfish.gif" alt="Ethan" width="250" height="250">
+                        <p>Ethan Tan</p>
+                        <img class="center-block" src="alvin.png" alt="Alvin" width="250" height="250">
+                        <p>Alvin Wang</p>
+                        <img class="center-block" src="edward.png" alt="Edward" width="250" height="250">
+                        <p>Edward "I Have Regents" Yang</p>
+                </div>
+                <div class="form-container3">
+                    <img class="center-block" src="black.png" alt="Picture" width="50" height="60">
+                    <p>Location: </p>
+                    <input class="center-block" type="text" name="location"/>
+                    <p>Description:</p>
+                    <input class="center-block" type= "text" name= "description"/>
+                    <img class="center-block" src="black.png" alt="Picture" width="55" height="195">
+                    <form action="/findEvent" method="GET">
+                        <p>Use keywords to search if an event you're interested in is going on right now:</p>
+                        <input class="center-block" type="text" name="keywords" />
+                        <br/>
+                        <input class="center-block" type="submit" value="search" />
+                    </form>
+                </div>
 
         </form>
+        
 
-        <form action="/count" method="GET">
-            <p>Click "GO!" to find out how many events are going on right now!</p>
-            <input class="center-block" type="submit" value="GO!" />
-        </form>
-
-        <form action="/findEvent" method="GET">
-            <p>Use keywords to search if an event you're interested in is going on right now:</p>
-            <input class="center-block" type="text" name="keywords" />
-            <input class="center-block" type="submit" value="search" />
-        </form>
-
-        <form action="/randomEvent" method="GET">
-            <p>Bored? Click here for a random event to attend!</p>
-            <input class="center-block" type="submit" value="Random Event"/>
-            <p>This robust service has been brought to you by: </p>
-            <img class="center-block" src="david1.png" alt="David" width="350" height="350">
-            <p>David Cao</p>
-            <img class="center-block" src="blobfish.gif" alt="Ethan" width="350" height="350">
-            <p>Ethan Tan</p>
-            <img class="center-block" src="alvin.png" alt="Alvin" width="350" height="350">
-            <p>Alvin Wang</p>
-            <img class="center-block" src="edward.png" alt="Edward" width="350" height="350">
-            <p>Edward "I Have Regents" Yang</p>
+            
         </form>
     </body>
 </html>
