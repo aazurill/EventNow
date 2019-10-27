@@ -180,31 +180,83 @@ class MapWidgetState extends State<MapWidget> {
   _onMarkerTapped(BuildContext context, Event e) {
     TextTheme tt = Theme.of(context).textTheme;
     _sk.currentState.showBottomSheet((context) {
-      return ConstrainedBox(
-        constraints: new BoxConstraints(
-          maxHeight: 350,
-        ),
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(e.name, style: tt.title),
-              Container(height: 12),
-              Text("Location: ${e.lat}, ${e.long}", style: tt.body1),
-              Container(height: 12),
-              Text("Time: ${e.startTime.toString()} to ${e.endTime.toString()}", style: tt.body1),
-              Container(height: 12),
-              InkWell(child: FloatingActionButton.extended(
-                  onPressed: () {},
-                  elevation: 0,
-                  hoverElevation: 1,
-                  highlightElevation: 1,
-                  label: Text("I'm going!")))
-            ],
-          ),
-        ),
-      );
+      return FutureBuilder(
+        future: Geolocator().placemarkFromCoordinates(e.lat, e.long),
+        builder: (BuildContext context, AsyncSnapshot<List<Placemark>> snapshot) {
+          String pos;
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return null;
+          } else if (snapshot.hasError || snapshot.data == null || snapshot.data.isEmpty) {
+            pos = "(${e.lat}, ${e.long})";
+          } else {
+            Placemark posM = snapshot.data[0];
+            pos = "${posM.thoroughfare}, ${posM.locality}";
+          }
+
+          return ConstrainedBox(
+            constraints: new BoxConstraints(
+              minHeight: 0,
+              maxHeight: 350,
+            ),
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(e.name, style: TextStyle(fontSize: 24.0)),
+                  Container(height: 20),
+                  Row(
+                    children: <Widget>[
+                      Icon(Icons.location_on),
+                      Container(width: 20),
+                      Text("Location: ${e.lat}, ${e.long}", style: TextStyle(
+                          fontSize: 16.0, letterSpacing: 0.25)),
+                    ],
+                  ),
+                  Container(height: 16),
+                  Row(
+                    children: <Widget>[
+                      Icon(Icons.timer),
+                      Container(width: 20),
+                      Text(e.prettifyTime(DateTime.now()), style: tt.body1),
+                    ],
+                  ),
+                  Container(height: 16),
+                  Expanded(
+                      flex: 1,
+                      child: SingleChildScrollView(
+                          child: Text("Lorem ipsum: filler for description")
+                      )
+                  ),
+                  Container(height: 16),
+                  Row(
+                    children: <Widget>[
+                      InkWell(child: FloatingActionButton.extended(
+                          onPressed: () {},
+                          elevation: 0,
+                          hoverElevation: 1,
+                          highlightElevation: 1,
+                          label: Text("I'm going!",
+                              style: TextStyle(fontSize: 12.0)))),
+                      Container(width: 4.0),
+                      InkWell(child: FloatingActionButton.extended(
+                          backgroundColor: Colors.grey,
+                          onPressed: () {},
+                          elevation: 0,
+                          hoverElevation: 1,
+                          highlightElevation: 1,
+                          label: Text("Directions",
+                              style: TextStyle(fontSize: 12.0))))
+                    ],
+                  )
+                ],
+              ),
+            ),
+          );
+        },
+      )
+
     });
   }
 
