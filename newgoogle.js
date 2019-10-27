@@ -15,6 +15,7 @@ server.listen(port, '0.0.0.0', () => {
 const events = [];
 const clubs = [];
 const tags =[];
+const interested = [];
 
 jsonStr ='[]';
 app.use(express.static(__dirname+"/public"));
@@ -97,7 +98,8 @@ app.get('/count', (req, res) => {
 //       event from our array to the response.
 app.get('/randomEvent', (req,res) => {
   const event = events[getRandomNumber()];
-    res.send(event[0]);
+
+    res.send(event["name"]);
 });
 
 app.get('/findEvent', (req,res) => {
