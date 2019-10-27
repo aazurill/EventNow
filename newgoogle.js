@@ -71,9 +71,9 @@ app.post('/insertData', (req, res) => {
     });
     res.redirect('/');
 });
-app.post('/getClub',(req,res) =>{
+app.get('/getClub',(req,res) =>{
   res.send(clubs);
-})
+});
 // Gets all the events in the array
 app.get('/getMap', (req, res) => {
     res.sendFile(__dirname + "/index.html" );
