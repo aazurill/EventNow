@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 Future<Data> fetchData() async {
-  final response = await http.get('http://ec2-3-19-243-124.us-east-2.compute.amazonaws.com:3001/getData');
+  final response = await http.get('http://ec2-3-19-243-124.us-east-2.compute.amazonaws.com:8080/getEvent');
   if (response.statusCode == 200) {
     // If server returns an OK response, parse the JSON.
     return Data.fromJson(json.decode(response.body));
@@ -37,6 +37,7 @@ class Data {
 class Event {
   final String name;
   final int clubId;
+  final String club;
   final String description;
   final List<String> tags;
   final double lat;
@@ -44,14 +45,15 @@ class Event {
   final DateTime startTime;
   final DateTime endTime;
 
-  Event({this.name, this.clubId, this.description, this.tags, this.lat, this.long, this.startTime, this.endTime});
+  Event({this.name, this.clubId, this.club, this.description, this.tags, this.lat, this.long, this.startTime, this.endTime});
 
   factory Event.fromJson(Map<String, dynamic> json) {
     double lat = double.parse(json['lat']);
     double long = double.parse(json['long']);
     return Event(
       name: json['name'],
-      clubId: json['id'],
+      clubId: json['ClubID'],
+      club: json["group"],
       description: json['description'],
       tags: json['tags'],
       lat: lat,
